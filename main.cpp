@@ -1,41 +1,35 @@
+// main.cpp
 #include <chrono>
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include "rectangle.hpp"
 
 using namespace std::chrono_literals;
 
-class SimpleDriver : public rclcpp::Node
+class DriverNode : public rclcpp::Node
 {
 public:
-  SimpleDriver() : Node("simple_driver")
+  DriverNode()
+  : Node("driver"),
+    rectangle_(0.25, 4.0, 2.0, 0.6)   // v, long_side, short_side, turn_rate
   {
     pub_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
-
     start_ = this->now();
-    timer_ = this->create_wall_timer(50ms, std::bind(&SimpleDriver::tick, this));
+    timer_ = this->create_wall_timer(
+      50ms,
+      std::bind(&DriverNode::tick, this)
+    );
   }
 
 private:
   void tick()
   {
-    const auto t = (this->now() - start_).seconds();
-
-    geometry_msgs::msg::Twist cmd;
-cmd.linear.x = 0.0;  // m/s
-cmd.angular.z = 5.0; // rad/s
-    // 0-2s: forward, 2-3s: rotate, then repeat every 3s
-	/*
-    const double phase = std::fmod(t, 4.0);
-    if (phase < 2.0) {
-      cmd.linear.x = 0.0;   // m/s
-      cmd.angular.z = -20.0;
-    } else {
-      cmd.linear.x = 0.0;
-      cmd.angular.z = 20.0;  // rad/s
-    }
-*/
+    double t = (this->now() - start_).seconds();
+    auto cmd = rectangle_.compute(t);
     pub_->publish(cmd);
   }
+
+  linebot::Rectangle rectangle_;
 
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_;
   rclcpp::TimerBase::SharedPtr timer_;
@@ -45,7 +39,7 @@ cmd.angular.z = 5.0; // rad/s
 int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<SimpleDriver>());
+  rclcpp::spin(std::make_shared<DriverNode>());
   rclcpp::shutdown();
   return 0;
 }
