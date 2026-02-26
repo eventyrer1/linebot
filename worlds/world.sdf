@@ -16,7 +16,7 @@
         <pose>0 -1.0 0.6 0.6 0 0</pose>
       </camera>
     </gui>
-
+<!--
     <model name="black_line">
       <static>true</static>
       <pose>0 0 0.001 0 0 0</pose>
@@ -33,7 +33,7 @@
         </visual>
       </link>
     </model>
-
+-->
    <include>
   <uri>model://my_robot</uri>
   <name>my_robot</name>

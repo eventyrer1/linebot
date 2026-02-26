@@ -13,14 +13,30 @@
         </inertia>
       </inertial>
 
-      <collision name="chassis_collision">
-        <pose>0 0 0.02 0 0 0</pose>
-        <geometry><box><size>0.24 0.12 0.04</size></box></geometry>
+      <!-- Stem of the T -->
+      <collision name="chassis_stem_collision">
+        <pose>0.00 0 0.02 0 0 0</pose>
+        <geometry><box><size>0.26 0.08 0.04</size></box></geometry>
       </collision>
 
-      <visual name="chassis_visual">
-        <pose>0 0 0.02 0 0 0</pose>
-        <geometry><box><size>0.24 0.12 0.04</size></box></geometry>
+      <!-- Crossbar of the T (rear) -->
+      <collision name="chassis_bar_collision">
+        <pose>-0.10 0 0.02 0 0 0</pose>
+        <geometry><box><size>0.10 0.20 0.04</size></box></geometry>
+      </collision>
+
+      <visual name="chassis_stem_visual">
+        <pose>0.00 0 0.02 0 0 0</pose>
+        <geometry><box><size>0.26 0.08 0.04</size></box></geometry>
+        <material>
+          <ambient>0.1 0.2 0.8 1</ambient>
+          <diffuse>0.1 0.2 0.8 1</diffuse>
+        </material>
+      </visual>
+
+      <visual name="chassis_bar_visual">
+        <pose>-0.10 0 0.02 0 0 0</pose>
+        <geometry><box><size>0.10 0.20 0.04</size></box></geometry>
         <material>
           <ambient>0.1 0.2 0.8 1</ambient>
           <diffuse>0.1 0.2 0.8 1</diffuse>
@@ -38,80 +54,120 @@
     </link>
 
     <link name="left_wheel_link">
-  <pose>-0.07 0.07 0.03 0 0 0</pose>
-  <inertial>
-    <mass>0.15</mass>
-    <inertia>
-      <ixx>0.0002</ixx><ixy>0</ixy><ixz>0</ixz>
-      <iyy>0.0002</iyy><iyz>0</iyz>
-      <izz>0.0002</izz>
-    </inertia>
-  </inertial>
+      <pose>-0.10 0.10 0.03 0 0 0</pose>
+      <inertial>
+        <mass>0.15</mass>
+        <inertia>
+          <ixx>0.0002</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.0002</iyy><iyz>0</iyz>
+          <izz>0.0002</izz>
+        </inertia>
+      </inertial>
 
-  <collision name="left_wheel_collision">
-    <pose>0 0 0 1.57079632679 0 0</pose>
-    <geometry><cylinder><radius>0.05</radius><length>0.05</length></cylinder></geometry>
-  </collision>
+      <collision name="left_wheel_collision">
+  <pose>0 0 0 1.57079632679 0 0</pose>
+  <geometry>
+    <cylinder>
+      <radius>0.05</radius>
+      <length>0.05</length>
+    </cylinder>
+  </geometry>
 
-  <visual name="left_wheel_visual">
-    <pose>0 0 0 1.57079632679 0 0</pose>
-    <geometry><cylinder><radius>0.05</radius><length>0.05</length></cylinder></geometry>
-    <material>
-      <ambient>0.6 0.6 0.6 1</ambient>
-      <diffuse>0.6 0.6 0.6 1</diffuse>
-    </material>
-  </visual>
-</link>
+  <surface>
+    <friction>
+      <ode>
+        <mu>100.0</mu>
+        <mu2>100.0</mu2>
+      </ode>
+    </friction>
+    <contact>
+      <ode>
+        <kp>1000000.0</kp>
+        <kd>1.0</kd>
+      </ode>
+    </contact>
+  </surface>
+</collision>
 
-<joint name="left_wheel_joint" type="revolute">
-  <parent>base_link</parent>
-  <child>left_wheel_link</child>
-  <axis>
-    <xyz>0 1 0</xyz>
-    <limit>
-      <lower>-1e16</lower>
-      <upper>1e16</upper>
-    </limit>
-  </axis>
-</joint>
+      <visual name="left_wheel_visual">
+        <pose>0 0 0 1.57079632679 0 0</pose>
+        <geometry><cylinder><radius>0.05</radius><length>0.05</length></cylinder></geometry>
+        <material>
+          <ambient>0.6 0.6 0.6 1</ambient>
+          <diffuse>0.6 0.6 0.6 1</diffuse>
+        </material>
+      </visual>
+    </link>
 
-<link name="right_wheel_link">
-  <pose>-0.07 -0.07 0.03 0 0 0</pose>
-  <inertial>
-    <mass>0.15</mass>
-    <inertia>
-      <ixx>0.0002</ixx><ixy>0</ixy><ixz>0</ixz>
-      <iyy>0.0002</iyy><iyz>0</iyz>
-      <izz>0.0002</izz>
-    </inertia>
-  </inertial>
+    <joint name="left_wheel_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>left_wheel_link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+        </limit>
+      </axis>
+    </joint>
 
-  <collision name="right_wheel_collision">
-    <pose>0 0 0 1.57079632679 0 0</pose>
-    <geometry><cylinder><radius>0.05</radius><length>0.05</length></cylinder></geometry>
-  </collision>
+    <link name="right_wheel_link">
+      <pose>-0.10 -0.10 0.03 0 0 0</pose>
+      <inertial>
+        <mass>0.15</mass>
+        <inertia>
+          <ixx>0.0002</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.0002</iyy><iyz>0</iyz>
+          <izz>0.0002</izz>
+        </inertia>
+      </inertial>
 
-  <visual name="right_wheel_visual">
-    <pose>0 0 0 1.57079632679 0 0</pose>
-    <geometry><cylinder><radius>0.05</radius><length>0.05</length></cylinder></geometry>
-    <material>
-      <ambient>0.6 0.6 0.6 1</ambient>
-      <diffuse>0.6 0.6 0.6 1</diffuse>
-    </material>
-  </visual>
-</link>
+      <collision name="right_wheel_collision">
+  <pose>0 0 0 1.57079632679 0 0</pose>
+  <geometry>
+    <cylinder>
+      <radius>0.05</radius>
+      <length>0.05</length>
+    </cylinder>
+  </geometry>
 
-<joint name="right_wheel_joint" type="revolute">
-  <parent>base_link</parent>
-  <child>right_wheel_link</child>
-  <axis>
-    <xyz>0 1 0</xyz>
-    <limit>
-      <lower>-1e16</lower>
-      <upper>1e16</upper>
-    </limit>
-  </axis>
-</joint>
+  <surface>
+    <friction>
+      <ode>
+        <mu>100.0</mu>
+        <mu2>100.0</mu2>
+      </ode>
+    </friction>
+    <contact>
+      <ode>
+        <kp>1000000.0</kp>
+        <kd>1.0</kd>
+      </ode>
+    </contact>
+  </surface>
+</collision>
+
+      <visual name="right_wheel_visual">
+        <pose>0 0 0 1.57079632679 0 0</pose>
+        <geometry><cylinder><radius>0.05</radius><length>0.05</length></cylinder></geometry>
+        <material>
+          <ambient>0.6 0.6 0.6 1</ambient>
+          <diffuse>0.6 0.6 0.6 1</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="right_wheel_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>right_wheel_link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+        </limit>
+      </axis>
+    </joint>
 
     <link name="caster_link">
       <pose>0.10 0 0.015 0 0 0</pose>
@@ -125,11 +181,11 @@
       </inertial>
 
       <collision name="caster_collision">
-        <geometry><sphere><radius>0.015</radius></sphere></geometry>
+        <geometry><sphere><radius>0.030</radius></sphere></geometry>
       </collision>
 
       <visual name="caster_visual">
-        <geometry><sphere><radius>0.015</radius></sphere></geometry>
+        <geometry><sphere><radius>0.030</radius></sphere></geometry>
         <material>
           <ambient>0.05 0.05 0.05 1</ambient>
           <diffuse>0.05 0.05 0.05 1</diffuse>
@@ -143,17 +199,15 @@
     </joint>
 
     <plugin
-        filename="libignition-gazebo-diff-drive-system.so"
-        name="ignition::gazebo::systems::DiffDrive">
+      filename="libignition-gazebo-diff-drive-system.so"
+      name="ignition::gazebo::systems::DiffDrive">
       <left_joint>left_wheel_joint</left_joint>
       <right_joint>right_wheel_joint</right_joint>
-      <wheel_separation>0.14</wheel_separation>
+      <wheel_separation>0.20</wheel_separation>
       <wheel_radius>0.05</wheel_radius>
       <odom_publish_frequency>50</odom_publish_frequency>
-      <!-- Relative command topic for model-local naming -->
-      <topic>cmd_vel</topic>
+      <topic>/cmd_vel</topic>
     </plugin>
 
   </model>
-
 </sdf>

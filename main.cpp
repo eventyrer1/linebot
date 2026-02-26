@@ -21,17 +21,19 @@ private:
     const auto t = (this->now() - start_).seconds();
 
     geometry_msgs::msg::Twist cmd;
-
+cmd.linear.x = 0.0;  // m/s
+cmd.angular.z = 5.0; // rad/s
     // 0-2s: forward, 2-3s: rotate, then repeat every 3s
-    const double phase = std::fmod(t, 3.0);
+	/*
+    const double phase = std::fmod(t, 4.0);
     if (phase < 2.0) {
-      cmd.linear.x = 0.2;   // m/s
-      cmd.angular.z = 0.0;
+      cmd.linear.x = 0.0;   // m/s
+      cmd.angular.z = -20.0;
     } else {
       cmd.linear.x = 0.0;
-      cmd.angular.z = 1.0;  // rad/s
+      cmd.angular.z = 20.0;  // rad/s
     }
-
+*/
     pub_->publish(cmd);
   }
 
