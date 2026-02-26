@@ -11,6 +11,7 @@
 
   <!-- C++ node (if you have one) -->
   <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
 
   <!-- Gazebo Sim (gz) + ROS integration -->
   <exec_depend>ros_gz_sim</exec_depend>

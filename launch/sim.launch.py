@@ -40,20 +40,28 @@ def generate_launch_description():
         launch_arguments={'gz_args': [world, ' -r']}.items(),
     )
 
-    # Bridge ROS /cmd_vel <-> Gazebo Transport /cmd_vel
+    # Bridge command topic one-way: ROS -> Gazebo.
+    # Use relative topic name to match the model plugin setting.
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         output='screen',
         arguments=[
-            '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
+            'cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
         ],
     )
+
+    controller = Node(
+        package='linebot',
+        executable='linebot',
+        output='screen',
+)
 
     return LaunchDescription([
         world_arg,
         set_gz_resource,
         set_ign_resource,
         gz,
-        bridge
+        bridge,
+        controller,
     ])

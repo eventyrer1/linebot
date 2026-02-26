@@ -19,11 +19,13 @@ install(DIRECTORY worlds
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 add_executable(linebot main.cpp)
 
 ament_target_dependencies(linebot
   rclcpp
+  geometry_msgs
 )
 
 install(TARGETS linebot
