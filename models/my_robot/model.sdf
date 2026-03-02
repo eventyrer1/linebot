@@ -65,29 +65,29 @@
       </inertial>
 
       <collision name="left_wheel_collision">
-  <pose>0 0 0 1.57079632679 0 0</pose>
-  <geometry>
-    <cylinder>
-      <radius>0.05</radius>
-      <length>0.05</length>
-    </cylinder>
-  </geometry>
+        <pose>0 0 0 1.57079632679 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.05</length>
+          </cylinder>
+        </geometry>
 
-  <surface>
-    <friction>
-      <ode>
-        <mu>100.0</mu>
-        <mu2>100.0</mu2>
-      </ode>
-    </friction>
-    <contact>
-      <ode>
-        <kp>1000000.0</kp>
-        <kd>1.0</kd>
-      </ode>
-    </contact>
-  </surface>
-</collision>
+        <surface>
+          <friction>
+            <ode>
+              <mu>100.0</mu>
+              <mu2>100.0</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <kp>1000000.0</kp>
+              <kd>1.0</kd>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
 
       <visual name="left_wheel_visual">
         <pose>0 0 0 1.57079632679 0 0</pose>
@@ -123,29 +123,29 @@
       </inertial>
 
       <collision name="right_wheel_collision">
-  <pose>0 0 0 1.57079632679 0 0</pose>
-  <geometry>
-    <cylinder>
-      <radius>0.05</radius>
-      <length>0.05</length>
-    </cylinder>
-  </geometry>
+        <pose>0 0 0 1.57079632679 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.05</length>
+          </cylinder>
+        </geometry>
 
-  <surface>
-    <friction>
-      <ode>
-        <mu>100.0</mu>
-        <mu2>100.0</mu2>
-      </ode>
-    </friction>
-    <contact>
-      <ode>
-        <kp>1000000.0</kp>
-        <kd>1.0</kd>
-      </ode>
-    </contact>
-  </surface>
-</collision>
+        <surface>
+          <friction>
+            <ode>
+              <mu>100.0</mu>
+              <mu2>100.0</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <kp>1000000.0</kp>
+              <kd>1.0</kd>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
 
       <visual name="right_wheel_visual">
         <pose>0 0 0 1.57079632679 0 0</pose>
@@ -198,6 +198,24 @@
       <child>caster_link</child>
     </joint>
 
+    <!-- ========================= -->
+    <!-- Add PX4FLOW + LIDAR models -->
+    <!-- ========================= -->
+
+    <!-- px4flow camera model -->
+    <include>
+      <uri>model://px4flow</uri>
+      <!-- position it near the front and low, facing down as the model defines -->
+      <pose>0.10 0 0.02 0 0 0</pose>
+    </include>
+
+    <!-- Attach px4flow to base_link (SDF include creates its own model/link namespace) -->
+    <joint name="px4flow_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>px4flow::link</child>
+    </joint>
+
+    <!-- Diff drive (Gazebo Sim / Ignition) -->
     <plugin
       filename="libignition-gazebo-diff-drive-system.so"
       name="ignition::gazebo::systems::DiffDrive">
