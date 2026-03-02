@@ -4,57 +4,35 @@
 namespace linebot
 {
 
-Rectangle::Rectangle(double v,
-                     double long_side,
-                     double short_side,
-                     double w)
-: v_(v),
-  long_side_(long_side),
-  short_side_(short_side),
-  w_(w)
-{
-}
+Rectangle::Rectangle(double v, double long_side, double short_side, double w)
+: v_(v), long_side_(long_side), short_side_(short_side), w_(w) {}
 
 geometry_msgs::msg::Twist Rectangle::compute(double t)
 {
   geometry_msgs::msg::Twist cmd;
 
-  const double t_long  = long_side_  / v_;
-  const double t_short = short_side_ / v_;
-  const double t_turn  = (M_PI / 2.0) / w_;
+  const double tL = long_side_ / v_;
+  const double tS = short_side_ / v_;
+  const double tT = (M_PI * 0.5) / w_;
+  const double cycle = 2.0 * (tL + tS) + 4.0 * tT;
 
-  const double cycle =
-      2.0 * (t_long + t_short) +
-      4.0 * t_turn;
+  const double p = std::fmod(t, cycle);
 
-  double p = std::fmod(t, cycle);
+  // 8 phases: L, turn, S, turn, L, turn, S, turn
+  const double start[8] = {0, tL, tL + tT, tL + tT + tS,
+                           tL + 2*tT + tS, 2*tL + 2*tT + tS,
+                           2*tL + 3*tT + tS, 2*tL + 3*tT + 2*tS};
 
-  auto forward = [&](double dur) -> bool {
-    if (p < dur) {
-      cmd.linear.x = v_;
-      cmd.angular.z = 0.0;
-      return true;
-    }
-    p -= dur;
-    return false;
-  };
+  const bool is_forward =
+      (p < start[1]) ||
+      (p >= start[2] && p < start[3]) ||
+      (p >= start[4] && p < start[5]) ||
+      (p >= start[6] && p < start[7]);
 
-  auto turn = [&](double dur) -> bool {
-    if (p < dur) {
-      cmd.linear.x = 0.0;
-      cmd.angular.z = w_;
-      return true;
-    }
-    p -= dur;
-    return false;
-  };
-
-  forward(t_long)  || turn(t_turn) ||
-  forward(t_short) || turn(t_turn) ||
-  forward(t_long)  || turn(t_turn) ||
-  forward(t_short) || turn(t_turn);
+  cmd.linear.x  = is_forward ? v_ : 0.0;
+  cmd.angular.z = is_forward ? 0.0 : w_;
 
   return cmd;
 }
 
-}  // namespace linebot
+} // namespace linebot

@@ -11,7 +11,7 @@ class DriverNode : public rclcpp::Node
 public:
   DriverNode()
   : Node("driver"),
-    rectangle_(0.25, 4.0, 2.0, 0.6)   // v, long_side, short_side, turn_rate
+    rectangle_(0.2, 4.0, 2.0, 0.2)   // v, long_side, short_side, turn_rate
   {
     pub_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
     start_ = this->now();

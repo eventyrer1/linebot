@@ -53,7 +53,7 @@ def generate_launch_description():
 
     controller = Node(
         package='linebot',
-        executable='linebot_node',
+        executable='linebot',
         output='screen',
 )
 

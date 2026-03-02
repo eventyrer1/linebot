@@ -11,14 +11,11 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
-# Build the library in src/
 add_subdirectory(src)
 
-# Main executable in root (ONLY main.cpp)
 add_executable(linebot main.cpp)
 ament_target_dependencies(linebot rclcpp geometry_msgs)
 
-# Link behaviors library
 target_link_libraries(linebot linebot_behaviors)
 
 # Include headers
