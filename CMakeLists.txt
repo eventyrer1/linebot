@@ -24,6 +24,15 @@ target_include_directories(linebot PUBLIC
   $<INSTALL_INTERFACE:include>
 )
 
+# Optional: build vendored PX4 optical flow plugin with its own upstream CMake
+# when present in this repo.
+set(PX4_OPTICAL_FLOW_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/px4_optical_flow/optical_flow")
+if(EXISTS "${PX4_OPTICAL_FLOW_DIR}/CMakeLists.txt")
+  add_subdirectory("${PX4_OPTICAL_FLOW_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/px4_optical_flow")
+elseif(EXISTS "${PX4_OPTICAL_FLOW_DIR}")
+  message(WARNING "Found ${PX4_OPTICAL_FLOW_DIR} but no CMakeLists.txt. Skipping vendored plugin build.")
+endif()
+
 install(TARGETS linebot
   DESTINATION lib/${PROJECT_NAME}
 )
