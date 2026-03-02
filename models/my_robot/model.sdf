@@ -202,7 +202,7 @@
     <!-- Add PX4FLOW + LIDAR models -->
     <!-- ========================= -->
 
-    <!-- px4flow camera model -->
+       <!-- px4flow camera model -->
     <include>
       <uri>model://px4flow</uri>
       <!-- position it near the front and low, facing down as the model defines -->
@@ -226,6 +226,7 @@
       <odom_publish_frequency>50</odom_publish_frequency>
       <topic>/cmd_vel</topic>
     </plugin>
+
 
   </model>
 </sdf>

@@ -12,8 +12,12 @@ def generate_launch_description():
     ros_gz_sim_share = get_package_share_directory('ros_gz_sim')
 
     models_path = os.path.join(pkg_share, 'models')
+    install_prefix = os.path.dirname(os.path.dirname(pkg_share))
+    plugin_path = os.path.join(install_prefix, 'lib')
+
     gz_resource_path = models_path + ':' + os.environ.get('GZ_SIM_RESOURCE_PATH', '')
     ign_resource_path = models_path + ':' + os.environ.get('IGN_GAZEBO_RESOURCE_PATH', '')
+    gz_plugin_path = plugin_path + ':' + os.environ.get('GZ_SIM_SYSTEM_PLUGIN_PATH', '')
 
     set_gz_resource = SetEnvironmentVariable(
         name='GZ_SIM_RESOURCE_PATH',
@@ -23,6 +27,11 @@ def generate_launch_description():
     set_ign_resource = SetEnvironmentVariable(
         name='IGN_GAZEBO_RESOURCE_PATH',
         value=ign_resource_path
+    )
+
+    set_gz_plugin_path = SetEnvironmentVariable(
+        name='GZ_SIM_SYSTEM_PLUGIN_PATH',
+        value=gz_plugin_path
     )
 
     world = LaunchConfiguration('world')
@@ -61,6 +70,7 @@ def generate_launch_description():
         world_arg,
         set_gz_resource,
         set_ign_resource,
+        set_gz_plugin_path,
         gz,
         bridge,
         controller,
