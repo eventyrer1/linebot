@@ -14,22 +14,15 @@ find_package(geometry_msgs REQUIRED)
 add_subdirectory(src)
 
 add_executable(linebot main.cpp)
-ament_target_dependencies(linebot PUBLIC rclcpp geometry_msgs)
-target_link_libraries(linebot PRIVATE linebot_behaviors)
+ament_target_dependencies(linebot rclcpp geometry_msgs)
+target_link_libraries(linebot linebot_behaviors)
 
-target_include_directories(linebot PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
+install(TARGETS linebot
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY include/
-  DESTINATION include/${PROJECT_NAME}
+install(DIRECTORY launch models worlds
+  DESTINATION share/${PROJECT_NAME}
 )
-
-foreach(dir launch models worlds)
-  install(DIRECTORY ${dir}
-    DESTINATION share/${PROJECT_NAME}
-  )
-endforeach()
 
 ament_package()
