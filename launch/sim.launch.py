@@ -63,5 +63,5 @@ def generate_launch_description():
         set_ign_resource,
         gz,
         bridge,
-        #linebot_node,
+        linebot_node,
     ])
