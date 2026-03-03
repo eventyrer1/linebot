@@ -49,11 +49,19 @@ def generate_launch_description():
             '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
         ],
     )
+    linebot_node = Node(
+        package='linebot',
+        executable='linebot',
+        name='linebot',
+        output='screen',
+    )
+
 
     return LaunchDescription([
         world_arg,
         set_gz_resource,
         set_ign_resource,
         gz,
-        bridge
+        bridge,
+        #linebot_node,
     ])
