@@ -1,85 +1,153 @@
-#include <rclcpp/rclcpp.hpp>                 // ROS 2 C++ client library
+#include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
-#include <termios.h>                         // Terminal raw mode (Linux)
-#include <unistd.h>                          // read(), STDIN_FILENO
+#include <fcntl.h>
+#include <termios.h>
+#include <unistd.h>
 
-
-// Very small keyboard teleop:
-// - Arrow Up    -> forward
-// - Arrow Down  -> backward
-// - Arrow Left  -> turn left
-// - Arrow Right -> turn right
-// - q           -> quit
-int main(int argc, char **argv)
+class KeyboardTeleopNode : public rclcpp::Node
 {
-  // Initialize ROS 2 runtime
-  rclcpp::init(argc, argv);
+public:
+  KeyboardTeleopNode()
+  : Node("keyboard_teleop")
+  {
+    cmd_pub_ = create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
 
-  // Create a simple node named "keyboard_drive"
-  auto node = rclcpp::Node::make_shared("keyboard_drive");
-
-  // Create publisher to /cmd_vel
-  // Queue size 10 is enough for this simple use-case
-  auto pub = node->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
-
-  // Save terminal settings so we can restore them on exit
-  termios oldt{}, newt{};
-  tcgetattr(STDIN_FILENO, &oldt);   // read current terminal config
-  newt = oldt;                      // start from current config
-
-  // Disable canonical mode + echo:
-  // - ICANON off => key presses available immediately (no Enter needed)
-  // - ECHO off   => keys are not printed to terminal
-  newt.c_lflag &= ~(ICANON | ECHO);
-
-  // Apply new terminal settings now
-  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-
-  // Main key-reading loop
-  while (rclcpp::ok()) {
-    char c = 0;
-
-    // Read exactly one byte from keyboard
-    // If read fails or returns nothing, continue
-    if (read(STDIN_FILENO, &c, 1) <= 0) continue;
-
-    // Default-constructed Twist = all zeros = stop
-    geometry_msgs::msg::Twist msg;
-
-    // Quit if user presses q
-    if (c == 'q') break;
-
-    // Arrow keys arrive as 3-byte escape sequence:
-    // ESC (0x1b), '[' , one of A/B/C/D
-    if (c == '\x1b') {
-      char a = 0, b = 0;
-
-      // Read next two bytes in the escape sequence
-      if (read(STDIN_FILENO, &a, 1) <= 0) continue;
-      if (read(STDIN_FILENO, &b, 1) <= 0) continue;
-
-      // Confirm this is a CSI sequence: ESC [
-      if (a == '[') {
-        // Map arrow key to velocity commands
-        if (b == 'A') msg.linear.x = 0.3;    // Up    -> forward
-        if (b == 'B') msg.linear.x = -0.3;   // Down  -> backward
-        if (b == 'C') msg.angular.z = -1.0;  // Right -> rotate right
-        if (b == 'D') msg.angular.z = 1.0;   // Left  -> rotate left
-      }
+    if (!configure_terminal()) {
+      RCLCPP_ERROR(get_logger(), "Failed to configure terminal for teleop input");
     }
 
-    // Publish current command
-    // If key was not an arrow, msg stays zero (stop)
-    pub->publish(msg);
+    timer_ = create_wall_timer(
+      std::chrono::milliseconds(20),
+      [this]() { this->poll_keyboard(); });
+
+    RCLCPP_INFO(get_logger(), "Keyboard teleop active. Arrows/WASD to move, SPACE to stop, q to quit.");
   }
 
-  // Publish one final zero command so robot stops when quitting
-  pub->publish(geometry_msgs::msg::Twist());
+  ~KeyboardTeleopNode() override
+  {
+    restore_terminal();
+    publish_stop();
+  }
 
-  // Restore original terminal settings (important)
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+private:
+  bool configure_terminal()
+  {
+    if (tcgetattr(STDIN_FILENO, &old_term_) != 0) {
+      return false;
+    }
 
-  // Shutdown ROS 2 cleanly
+    termios raw = old_term_;
+    raw.c_lflag &= static_cast<unsigned long>(~(ICANON | ECHO));
+    raw.c_cc[VMIN] = 0;
+    raw.c_cc[VTIME] = 0;
+
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &raw) != 0) {
+      return false;
+    }
+
+    int current_flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+    if (current_flags == -1) {
+      return false;
+    }
+
+    old_flags_ = current_flags;
+    if (fcntl(STDIN_FILENO, F_SETFL, current_flags | O_NONBLOCK) == -1) {
+      return false;
+    }
+
+    terminal_configured_ = true;
+    return true;
+  }
+
+  void restore_terminal()
+  {
+    if (!terminal_configured_) {
+      return;
+    }
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &old_term_);
+    fcntl(STDIN_FILENO, F_SETFL, old_flags_);
+    terminal_configured_ = false;
+  }
+
+  void publish_stop()
+  {
+    geometry_msgs::msg::Twist stop;
+    cmd_pub_->publish(stop);
+  }
+
+  void publish_cmd(double linear_x, double angular_z)
+  {
+    geometry_msgs::msg::Twist cmd;
+    cmd.linear.x = linear_x;
+    cmd.angular.z = angular_z;
+    cmd_pub_->publish(cmd);
+  }
+
+  void poll_keyboard()
+  {
+    char c;
+    while (read(STDIN_FILENO, &c, 1) > 0) {
+      if (c == 'q' || c == 'Q') {
+        publish_stop();
+        rclcpp::shutdown();
+        return;
+      }
+
+      if (c == ' ' || c == 's' || c == 'S') {
+        publish_stop();
+        continue;
+      }
+
+      if (c == 'w' || c == 'W') {
+        publish_cmd(0.5, 0.0);
+        continue;
+      }
+
+      if (c == 'x' || c == 'X') {
+        publish_cmd(-0.5, 0.0);
+        continue;
+      }
+
+      if (c == 'a' || c == 'A') {
+        publish_cmd(0.0, 0.7);
+        continue;
+      }
+
+      if (c == 'd' || c == 'D') {
+        publish_cmd(0.0, -0.7);
+        continue;
+      }
+
+      if (c == '\x1b') {
+        char seq1 = 0;
+        char seq2 = 0;
+        if (read(STDIN_FILENO, &seq1, 1) > 0 && read(STDIN_FILENO, &seq2, 1) > 0 && seq1 == '[') {
+          if (seq2 == 'A') {
+            publish_cmd(0.5, 0.0);
+          } else if (seq2 == 'B') {
+            publish_cmd(-0.5, 0.0);
+          } else if (seq2 == 'C') {
+            publish_cmd(0.0, -0.7);
+          } else if (seq2 == 'D') {
+            publish_cmd(0.0, 0.7);
+          }
+        }
+      }
+    }
+  }
+
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_pub_;
+  rclcpp::TimerBase::SharedPtr timer_;
+  termios old_term_{};
+  int old_flags_ = 0;
+  bool terminal_configured_ = false;
+};
+
+int main(int argc, char **argv)
+{
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<KeyboardTeleopNode>());
   rclcpp::shutdown();
   return 0;
 }

@@ -25,6 +25,11 @@ def generate_launch_description():
         value=ign_resource_path
     )
 
+    set_qt_platform = SetEnvironmentVariable(
+        name='QT_QPA_PLATFORM',
+        value='xcb'
+    )
+
     world = LaunchConfiguration('world')
     world_arg = DeclareLaunchArgument(
         'world',
@@ -59,6 +64,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         world_arg,
+        set_qt_platform,
         set_gz_resource,
         set_ign_resource,
         gz,
