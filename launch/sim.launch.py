@@ -25,6 +25,11 @@ def generate_launch_description():
         value=ign_resource_path
     )
 
+    set_qt_platform = SetEnvironmentVariable(
+        name='QT_QPA_PLATFORM',
+        value='xcb'
+    )
+
     world = LaunchConfiguration('world')
     world_arg = DeclareLaunchArgument(
         'world',
@@ -49,11 +54,20 @@ def generate_launch_description():
             '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
         ],
     )
+    linebot_node = Node(
+        package='linebot',
+        executable='linebot',
+        name='linebot',
+        output='screen',
+    )
+
 
     return LaunchDescription([
         world_arg,
+        set_qt_platform,
         set_gz_resource,
         set_ign_resource,
         gz,
-        bridge
+        bridge,
+        linebot_node,
     ])
