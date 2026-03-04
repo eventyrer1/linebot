@@ -1,6 +1,6 @@
+/*
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
-#include <iostream>
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -12,8 +12,8 @@ public:
   {
     tcgetattr(STDIN_FILENO, &original_);
     raw_ = original_;
-    raw_.c_lflag &= ~(ICANON | ECHO);  // no line buffering, no echo
-    raw_.c_cc[VMIN] = 0;               // non-blocking read
+    raw_.c_lflag &= ~(ICANON | ECHO);
+    raw_.c_cc[VMIN] = 0;
     raw_.c_cc[VTIME] = 0;
     tcsetattr(STDIN_FILENO, TCSANOW, &raw_);
 
@@ -33,7 +33,7 @@ private:
   int original_flags_{0};
 };
 
-int main(int argc, char **argv)
+int run_controller(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
   auto node = rclcpp::Node::make_shared("keyboard_teleop");
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 
   RCLCPP_INFO(node->get_logger(), "WASD teleop ready. Press keys directly (q to quit).");
 
-  rclcpp::Rate loop_rate(50);  // 50 Hz loop
+  rclcpp::Rate loop_rate(50);
   while (rclcpp::ok()) {
     char c;
     ssize_t n = read(STDIN_FILENO, &c, 1);
@@ -78,3 +78,4 @@ int main(int argc, char **argv)
   rclcpp::shutdown();
   return 0;
 }
+*/
