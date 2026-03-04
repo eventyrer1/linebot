@@ -15,6 +15,9 @@ add_subdirectory(src)
 
 add_executable(linebot main.cpp)
 ament_target_dependencies(linebot rclcpp geometry_msgs)
+target_include_directories(linebot PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 target_link_libraries(linebot linebot_behaviors)
 
 install(TARGETS linebot

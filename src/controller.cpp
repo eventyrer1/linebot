@@ -1,4 +1,5 @@
-/*
+
+#include "linebot/controller.hpp"
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <termios.h>
@@ -33,7 +34,7 @@ private:
   int original_flags_{0};
 };
 
-int run_controller(int argc, char **argv)
+int run_controller(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   auto node = rclcpp::Node::make_shared("keyboard_teleop");
@@ -78,4 +79,3 @@ int run_controller(int argc, char **argv)
   rclcpp::shutdown();
   return 0;
 }
-*/

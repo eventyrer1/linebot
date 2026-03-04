@@ -140,7 +140,7 @@
     </dynamics>
   </axis>
 </joint>
-<!-- 
+
     <link name="caster_link">
       <pose>0.10 0 -0.0070 0 0 0</pose>
       <inertial>
@@ -154,6 +154,14 @@
 
       <collision name="caster_collision">
         <geometry><sphere><radius>0.015</radius></sphere></geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.6</mu>
+              <mu2>0.6</mu2>
+            </ode>
+          </friction>
+        </surface>
       </collision>
 
       <visual name="caster_visual">
@@ -165,11 +173,11 @@
       </visual>
     </link>
 
-    <joint name="caster_joint" type="fixed">
+    <joint name="caster_joint" type="ball">
       <parent>base_link</parent>
       <child>caster_link</child>
     </joint>
-   -->
+
     <plugin
         filename="libignition-gazebo-diff-drive-system.so"
         name="ignition::gazebo::systems::DiffDrive">
