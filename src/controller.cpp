@@ -56,12 +56,10 @@ int run_controller(int argc, char ** argv)
         cmd.linear.x = 0.5;
       } else if (c == 's' || c == 'S') {
         cmd.linear.x = -0.5;
-      } else if (c == 'a' || c == 'A') {
-        cmd.linear.x = 0.15;
-        cmd.angular.z = 1.2;
+      } else if (c == 'a' || c == 'A') {;
+        cmd.angular.z = 3.0;
       } else if (c == 'd' || c == 'D') {
-        cmd.linear.x = 0.15;
-        cmd.angular.z = -1.2;
+        cmd.angular.z = -3.0;
       } else if (c == 'q' || c == 'Q') {
         break;
       } else {
